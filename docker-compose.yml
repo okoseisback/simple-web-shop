@@ -1,0 +1,27 @@
+version: '3'
+services:
+  sws_app:
+    container_name: sws_app
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - sws_postgres
+    environment:
+      DATABASE_URL: postgresql://postgres:sws_467fc52b@sws_postgres:5432/sws_dev_db?schema=public
+      ADMIN_EMAIL: tianna16@ethereal.email
+      SMTP_HOST: smtp.ethereal.email
+      SMTP_PORT: 587
+      SMTP_USER: tianna16@ethereal.email
+      SMTP_PASS: duWqzeJQVm8C59MxZP
+
+  sws_postgres:
+    container_name: sws_postgres
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: sws_467fc52b
+      POSTGRES_DB: sws_dev_db
+    ports:
+      - "5022:5432"

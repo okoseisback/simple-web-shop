@@ -1,0 +1,6 @@
+<p>Payment is being processed, please wait...</p>
+<script>
+    setTimeout(function () {
+       window.location = "/thanks/<%= order.id %>";
+    }, 2000);
+</script>

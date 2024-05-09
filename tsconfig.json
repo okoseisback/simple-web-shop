@@ -1,0 +1,29 @@
+{
+  "ts-node": {
+    "require": [
+      "tsconfig-paths/register"
+    ]
+  },
+  "compilerOptions": {
+    "target": "es2016", // Target ECMAScript version
+    "module": "commonjs", // Output module format
+    "rootDir": "./", // Root directory of input files
+    "baseUrl": "./", // Base URL for module resolution
+    "paths": { // Path mapping for module resolution
+      "@app/*": [
+        "src/*" // Map '@app/*' to 'src/*'
+      ]
+    },
+    "resolveJsonModule": true, // Allow importing JSON files as modules
+    "sourceMap": true, // Generate source maps
+    "outDir": "./dist", // Output directory for compiled files
+    "removeComments": true, // Remove comments from output
+    "esModuleInterop": true, // Enable interoperability between CommonJS and ES Module
+    "forceConsistentCasingInFileNames": true, // Force consistent casing in file names
+    "strict": true, // Enable strict type-checking options
+    "skipLibCheck": true // Skip type checking of declaration files in 'node_modules'
+  },
+  "include": [ // Specify files to be included in compilation
+    "src/**/*" // Include all files in 'src' directory and its subdirectories
+  ]
+}

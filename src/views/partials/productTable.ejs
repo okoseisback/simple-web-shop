@@ -1,0 +1,44 @@
+<main class="page">
+    <section class="shopping-cart dark">
+        <div class="container">
+           <div class="block-heading">
+             <h2>Products</h2>
+             <p>Check out our products and buy the products you like.</p>
+           </div>
+           <div class="content">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Brand</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% products.forEach((product, index)=> { %>
+                        <tr>
+                            <td>
+                                <%= index + 1 %>
+                            </td>
+                            <td>
+                                <%= product.brand.name %>
+                            </td>
+                            <td>
+                                <%= product.name %>
+                            </td>
+                            <td>
+                               <%= product.price %>€
+                            </td>
+                            <td>
+                                <a class="btn btn-primary" href="/checkout/<%= product.id %>" role="button">BUY NOW</a>
+                            </td>
+                        </tr>
+                        <% }); %>
+                </tbody>
+            </table>
+            </div>
+        </div>
+   </section>
+</main>

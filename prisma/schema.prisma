@@ -1,0 +1,60 @@
+// Define the Prisma client generator
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Define the database connection configuration
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Define the Brand model
+model Brand {
+  id       Int       @id @default(autoincrement()) // Unique identifier for the brand
+  name     String    // Name of the brand
+  products Product[] // Products associated with this brand
+
+  @@index([name], name: "idx_brand_name") // Define an index on the name field
+}
+
+// Define the Product model
+model Product {
+  id      Int      @id @default(autoincrement()) // Unique identifier for the product
+  brand   Brand    @relation(fields: [brandId], references: [id]) // Brand associated with this product
+  brandId Int      // Foreign key for the brand
+  name    String   // Name of the product
+  price   Float    // Price of the product
+  orders  Order[]  // Orders associated with this product
+
+  @@index([brandId], name: "idx_product_brand") // Define an index on the brandId field
+}
+
+// Define the ShippingOption model
+model ShippingOption {
+  id          Int      @id @default(autoincrement()) // Unique identifier for the shipping option
+  name        String   // Name of the shipping option
+  description String   // Description of the shipping option
+  cost        Float    // Cost of the shipping option
+  createdAt   DateTime @default(now()) // Date and time when the shipping option was created
+  orders      Order[]  // Orders associated with this shipping option
+
+  @@index([name], name: "idx_shipping_option_name") // Define an index on the name field
+}
+
+// Define the Order model
+model Order {
+  id                 Int            @id @default(autoincrement()) // Unique identifier for the order
+  product            Product        @relation(fields: [productId], references: [id]) // Product associated with this order
+  productId          Int            // Foreign key for the product
+  totalProductValue  Float          // Total value of the products in the order
+  totalShippingValue Float          // Total value of the shipping for the order
+  clientName         String         // Name of the client who placed the order
+  clientAddress      String         // Address of the client
+  shippingOption     ShippingOption @relation(fields: [shippingOptionId], references: [id]) // Shipping option for the order
+  shippingOptionId   Int            // Foreign key for the shipping option
+  createdAt          DateTime       @default(now()) // Date and time when the order was created
+
+  @@index([productId], name: "idx_order_product") // Define an index on the productId field
+  @@index([clientName], name: "idx_order_client_name") // Define an index on the clientName field
+}

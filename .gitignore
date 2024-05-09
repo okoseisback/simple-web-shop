@@ -1,0 +1,29 @@
+# Dependency directories
+node_modules/
+dist/
+coverage
+
+# Environment variables
+.env
+
+# Prisma generated files
+prisma/.env
+prisma/migration-lock
+prisma/client/
+
+# IDE files
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Build files
+build/
+*.tsbuildinfo
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+README.md
