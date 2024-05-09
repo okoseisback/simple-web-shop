@@ -2,7 +2,7 @@
   "name": "simple-web-shop",
   "version": "1.0.0",
   "description": "Powered by OKTAY KÖSE(okoseisback@gmail.com)",
-  "main": "dist/src/server.js",
+  "main": "dist/src/application/index.js",
   "engines": {
     "node": ">=16.0.0"
   },
