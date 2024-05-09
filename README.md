@@ -109,7 +109,7 @@ Executes database seeding within the running container.
 ## Technologies Used
 
 - **PostgreSQL**: Powerful relational database management system.
-- **Express.js**: Web framework for Node.js.
+- **Express.js**: Web framework for Node.js (With EJS Template).
 - **Prisma**: ORM for TypeScript and Node.js.
 - **Zod**: TypeScript-first schema declaration and validation library.
 - And more.
