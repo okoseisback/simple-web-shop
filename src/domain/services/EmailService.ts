@@ -34,7 +34,7 @@ class EmailService {
                 from: process.env.ADMIN_EMAIL as string,
                 to: process.env.ADMIN_EMAIL as string,
                 subject: EMAIL_SUBJECTS.NEW_ORDER_NOTIF,
-                text: `${orderDetails.clientName}`
+                text: `${JSON.stringify(orderDetails)}`
             };
 
             // Send email using the transporter

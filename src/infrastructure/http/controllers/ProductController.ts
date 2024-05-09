@@ -1,4 +1,5 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
+import { handleError } from '@app/infrastructure/http/middlewares';
 import { z } from 'zod';
 
 import { IProductService } from '@app/domain/services/ProductService';
@@ -40,66 +41,82 @@ export class ProductController {
   }
 
   // Handler for rendering the products page
-  async getProductsPage(req: Request, res: Response): Promise<void> {
-    const products: ProductModel[] = await this.productService.getAllProducts();
-    res.render('products', { products });
+  async getProductsPage(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const products: ProductModel[] = await this.productService.getAllProducts();
+      res.render('products', { products });
+    } catch (error) {
+      handleError(res, next, error);
+    }
   }
 
   // Handler for rendering the checkout page for a specific product
-  async getProductCheckout(req: Request, res: Response): Promise<void> {
-    const productId: number = parseInt(req.params.id, 10);
-    const product: ProductModel | null = await this.productService.getProductById(productId);
-    if (product) {
-      const shippingOptions: ShippingOptionModel[] | null = await this.shippingOptionService.getAllShippingOptions();
-      res.render('checkout', { product, shippingOptions });
-    } else {
-      res.status(STATUS_CODES.NOT_FOUND).send(RESP_ERROR_MESSAGES.PRODUCT_NOT_FOUND);
+  async getProductCheckout(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const productId: number = parseInt(req.params.id, 10);
+      const product: ProductModel | null = await this.productService.getProductById(productId);
+      if (product) {
+        const shippingOptions: ShippingOptionModel[] | null = await this.shippingOptionService.getAllShippingOptions();
+        res.render('checkout', { product, shippingOptions });
+      } else {
+        res.status(STATUS_CODES.NOT_FOUND).send(RESP_ERROR_MESSAGES.PRODUCT_NOT_FOUND);
+      }
+    } catch (error) {
+      handleError(res, next, error);
     }
   }
 
   // Handler for processing a product purchase request
-  async postProductPurchase(req: Request, res: Response): Promise<void> {
-    const { productId, shippingId, name, address } = purchaseZodSchema.parse(req.body);
+  async postProductPurchase(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { productId, shippingId, name, address } = purchaseZodSchema.parse(req.body);
 
-    const product: ProductModel | null = await this.productService.getProductById(parseInt(productId));
-    if (product) {
-      const shippingOption: ShippingOptionModel | null = await this.shippingOptionService.getShippingOptionById(parseInt(shippingId));
-      
-      if (!shippingOption) {
-        res.status(STATUS_CODES.NOT_FOUND).send(RESP_ERROR_MESSAGES.SHIPPING_OPTION_NOT_FOUND);
-        return;
+      const product: ProductModel | null = await this.productService.getProductById(parseInt(productId));
+      if (product) {
+        const shippingOption: ShippingOptionModel | null = await this.shippingOptionService.getShippingOptionById(parseInt(shippingId));
+
+        if (!shippingOption) {
+          res.status(STATUS_CODES.NOT_FOUND).send(RESP_ERROR_MESSAGES.SHIPPING_OPTION_NOT_FOUND);
+          return;
+        }
+
+        const order = await this.orderService.create({
+          productId: parseInt(productId),
+          shippingId: parseInt(shippingId),
+          price: product.price,
+          cost: shippingOption.cost,
+          clientName: name,
+          clientAddress: address
+        });
+
+        if (!order) {
+          res.status(STATUS_CODES.NOT_FOUND).send(RESP_ERROR_MESSAGES.ORDER_CREATE_ERROR);
+          return;
+        }
+        const emailService = new EmailService();
+        await emailService.sendOrderNotification(order);
+
+        res.render('purchase', { order });
+      } else {
+        res.status(STATUS_CODES.NOT_FOUND).send(RESP_ERROR_MESSAGES.PRODUCT_NOT_FOUND);
       }
-
-      const order = await this.orderService.create({
-        productId: parseInt(productId),
-        shippingId: parseInt(shippingId),
-        price: product.price,
-        cost: shippingOption.cost,
-        clientName: name,
-        clientAddress: address
-      });
-
-      if (!order) {
-        res.status(STATUS_CODES.NOT_FOUND).send(RESP_ERROR_MESSAGES.ORDER_CREATE_ERROR);
-        return;
-      }
-      const emailService = new EmailService();
-      await emailService.sendOrderNotification(order);
-
-      res.render('purchase', { order });
-    } else {
-      res.status(STATUS_CODES.NOT_FOUND).send(RESP_ERROR_MESSAGES.PRODUCT_NOT_FOUND);
+    } catch (error) {
+      handleError(res, next, error);
     }
   }
 
   // Handler for rendering the thank you page for a completed order
-  async getProductThankYou(req: Request, res: Response): Promise<void> {
-    const orderId: number = parseInt(req.params.id, 10);
-    const order: OrderModel | null = await this.orderService.getById(orderId);
-    if (order) {
-      res.render('thanks', { order });
-    } else {
-      res.status(STATUS_CODES.NOT_FOUND).send(RESP_ERROR_MESSAGES.ORDER_NOT_FOUND);
+  async getProductThankYou(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const orderId: number = parseInt(req.params.id, 10);
+      const order: OrderModel | null = await this.orderService.getById(orderId);
+      if (order) {
+        res.render('thanks', { order });
+      } else {
+        res.status(STATUS_CODES.NOT_FOUND).send(RESP_ERROR_MESSAGES.ORDER_NOT_FOUND);
+      }
+    } catch (error) {
+      handleError(res, next, error);
     }
   }
 }
